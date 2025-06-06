@@ -31,4 +31,4 @@ public class ChanceCardDeck {
         card.apply(player);
     }
 }
-Highlighted parts are to be changed 
+// Highlighted parts are to be changed 
