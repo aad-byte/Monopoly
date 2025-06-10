@@ -1,4 +1,4 @@
-
+import java.util.*;
 public class ChanceCardDeck {
     private ChanceCard[][] deck;
     private Random rand = new Random();
