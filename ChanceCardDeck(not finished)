@@ -1,12 +1,12 @@
 import java.util.*;
 public class ChanceCardDeck {
-    private ChanceCard[][] deck;
+    private ChanceCardDeck[][] deck;
     private Random rand = new Random();
 
     public ChanceCardDeck() {
    // 3 types, 3 variants each
 
-        deck = new ChanceCard[3][3];
+        deck = new ChanceCardDeck[3][3];
         // Money cards, will add or remove money from player from the range stated below
         deck[0][0] = new MoneyCard("Bank error",-50, 150); // rand.nextInt(-150 ,150)
         deck[0][1] = new MoneyCard("You inherit money", 100, 200); // rand.nextInt(100,200)
@@ -26,7 +26,7 @@ public class ChanceCardDeck {
     public void drawRandomCard(Player player) {
         int type = rand.nextInt(deck.length);       // 0 to 2
         int variant = rand.nextInt(deck[0].length); // 0 to 2
-        ChanceCard card = deck[type][variant];
+        ChanceCardDeck card = deck[type][variant];
         System.out.println("You drew: " + card.getDescription());
         card.apply(player);
     }
