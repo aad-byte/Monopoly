@@ -7,7 +7,7 @@ public class BoardTile {
         this.position = position;
     }
 
-    public int position(){
+    public int getPosition(){
         return position;
     }
 }

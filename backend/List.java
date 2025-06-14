@@ -84,7 +84,7 @@ public class List {
 		for(Node i=findLast(this.owned); i!=head && !sorted; i=findLast(owned-k)) {
 			sorted =true;
 			for(Node j=head; j.link!=null; j=j.link) {
-				if(j.property.type>j.link.property.type || ((j.property.type==j.link.property.type) && (j.property.getPrice()>j.link.property.getPrice()) )) {
+				if(j.property.getType()>j.link.property.getType() || ((j.property.getType()==j.link.property.getType()) && (j.property.getPrice()>j.link.property.getPrice()) )) {
 					Property prop = j.property;
 					j.property= j.link.property;
 					j.link.property=prop;
@@ -99,7 +99,7 @@ public class List {
 		boolean found = false;
 		Property toReturn = null;
 		for(Node temp=head; temp!=null && found==false; temp = temp.link) {
-			if(temp.property.positionOnBoard==pos) {
+			if(temp.property.getPosition()==pos) {
 				found=true;
 				toReturn=temp.property;
 			}
@@ -107,6 +107,7 @@ public class List {
 		return toReturn;
 	}
 	
+	/* 
 	public void display() {
 		if(head==null) return;
 		int i=1;
@@ -114,7 +115,7 @@ public class List {
 			System.out.println("Property #"+i);
 			temp.property.display();
 		}
-	}
+	}*/
 
 	//Added by Aadya, to acess list of property objects without refrence to direct link - dangerous as it allows editing of private fields
 	public Property[] toArray(){

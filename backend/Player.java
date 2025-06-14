@@ -1,4 +1,4 @@
-
+package backend;
 public class Player {
 	
 	//Instance Fields
@@ -15,7 +15,7 @@ public class Player {
 	
 	public double cash;//Cash owned by player SHOULD NOT be altered from the main program, but should be accessible by property and chance classes.
 	public List propertyCollection; // List of all properties owned
-	private double assetValue; //Double value to hold the sum of all property prices.
+	//private double assetValue; //Double value to hold the sum of all property prices.
 	public static boolean loserFound; //
 	
 	//Constructor (CHANGE TO PARAMETERIZED CONSTRUCTOR)
@@ -43,7 +43,7 @@ public class Player {
 	//Method to update position of the player
 	public void setPosition(BoardTile tile, int roll) {
 		location = tile;
-		position=tile.position;
+		position=tile.getPosition();
 		latestDiceRoll=roll;
 	}
 	
@@ -56,10 +56,11 @@ public class Player {
 		//return Math.round(cash*100.0)/100.0; //Aadya - dont return cash by roudning, update cash in way such that it statys restricted to rtwo decimal places
 		return cash;
 	}
-	public double getWealth() {
+	
+	/*public double getWealth() {
 		//Returns total wealth rounded to 2 decimal places.
 		return Math.round((cash+assetValue)*100.0)/100.0;
-	}
+	}*/
 	
 	public void editCash(double amount) {
 		//Receives a money amount (could be positive or negative) that will be deducted or added to the player's cash
@@ -84,15 +85,16 @@ public class Player {
 	}
 	
 	//2. Method allowing player to buy a property, when feasible based on player's cash
-	public void buyProperty() {
+	public void buyProperty(Property landed) { //Note from Aadya - directly pass in the object for purchase, the method to return objct based on index will be avalible in the main program
 		
 		//Temporary variable to store the property the player landed upon
-		Property property = location.property;
+		Property property = landed;
 		
 		//Updating player and property fields based on choice
-		assetValue+=property.getPrice(); //adding property's price to assets owned
+		//assetValue+=property.getPrice(); //adding property's price to assets owned
 		cash-=property.getPrice(); //deducting cash
 		propertyCollection.insert(property); //inserting property into list of properties owned by player
+
 	}
 
 	//3. Method to calculate how many houses a player can build when they've landed on their property.
@@ -102,44 +104,46 @@ public class Player {
 		//Returns -1 if the property is a train station
 		
 		//Checks if property is a train station/not
-		if(property.isTrain) return -1;
+		if(property.getType() == 5) return -1;
 		else return (int) (cash/property.getHousePrice());
 	}
 	
 	//4. Method to upgrade property, when feasible based on player's cash
-	public void upgradeProperty(int wantsBuilt) {	
+	public void addHouse(int wantsBuilt, Property property) {	//Note from Aadya - directly pass in the object for purchase, the method to return objct based on index will be avalible in the main program
 		//Doesn't return anything
 			
 		//Updating property and player fields accordingly, if user wants upgrades to be done
-		Property property = location.property;
 		if(wantsBuilt!=0) {
-			cash-=(wantsBuilt*property.housePrice); //Deducting cash from player's account
-			this.assetValue+=property.rentIncreaseAmount; //CHECK FIELD
+			cash-=(wantsBuilt*property.getHousePrice()); //Deducting cash from player's account
+			//this.assetValue+=property.rentIncreaseAmount; //CHECK FIELD
 		}
 		else return;
 	}
 	
 	//5. Method to deduct cash from a player when they land on other players' properties
-	public void payRent() {
+	public void payRent(Property landed) {
 		//Method will be called only when player has ready cash to pay rent
 		//Doesn't return anything
 		
-		Player other = location.property.getOwner(); //Determining recipient player who receives rent
-		double amount = location.property.rentValue; //Determining rent amount
+		Player other = landed.getOwner(); //Determining recipient player who receives rent
+		double amount = landed.getRent(); //Determining rent amount
 		this.editCash(amount); //Decreasing cash from the player.
 		other.editCash(amount); //Increasing the cash of the player on whose property the implicit player is on.
 	}
 	
 	//7. Method to sell property 
-	public void sellProperty(int pos) {
+	public void sellProperty(int pos, Property property) {
 		Property sold = this.propertyCollection.delete(pos);
-		location.property.getOwner().propertyCollection.insert(sold);
+		property.getOwner().propertyCollection.insert(sold);
 	}
 	
 	//8. Calculate Property Wealth
-	public double returnWealth() {
-		double wealth= cash+assetValue;
-		return 
+	public double getWealth() {
+		double wealth= cash;
+
+		//iterate through properties adding up their assetvalues
+
+		return wealth;
 	}
 
 	//added by Aadya 

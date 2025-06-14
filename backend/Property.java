@@ -4,17 +4,19 @@ public class Property extends BoardTile {
     private boolean owned;
     private Player owner;
     public double rent;
-    private final int price;
+    private double assetValue;
+    private final double price;
     private final int type;
     private int houses;
     private final String name;
-    private static final int houseprice = 50; //cool idea to alter this after some certain number of rounds ot mimc houseing market 
+    private static final double houseprice = 100; //cool idea to alter this after some certain number of rounds ot mimc houseing market 
 
     //constructor
     public Property(String name, int price, int position, int rent, int type){
         super(position); //initalize with boardTile (superclass) constructor
         this.name = name;
         this.price = price;
+        this.assetValue = price;
         this.rent = rent;
         this.type = type; //add some logic so the only numbers accepted are between 0-4
 
@@ -33,11 +35,12 @@ public class Property extends BoardTile {
         if(owned && (owner.getCash() > 50)){
             this.houses++;
             this.owner.editCash(-50);
-            this.rent *= 1.1;
+            this.rent *= 2; //each house doubles the rent value
+            this.assetValue += 20; //asset value increases with very house purchased
         }
     }
 
-    public void typeBenefits(Player buyer){
+    public void typeBenefits(Player buyer){ //increases rent if the player owns proerpties of other types, for all the types of propeties owned (phrase better)
         //iterate through the player's prertie list, keeping track of each count 
         //everytime you come across a proeprty of hte same tpye, multiply it's rent by by 1.25
         //after iterating entire linked list, multiply current rent by 1.25to the power of the number of proeprties counted 
@@ -47,20 +50,29 @@ public class Property extends BoardTile {
 
         if(collection != null){
             for(int i = 0; i < collection.length; i++){
-                if(collection[i].getType() == this.type){//compare each owned property's type to this property
-                    collection[i].rent *= 1.25; //apply benifits to other properties of the same type owned by the player
+                //update rent by 1.5 for non-trainstation properties
+                if(collection[i].getType() == this.type && this.type!=5){//compare each owned property's type to this property
+                    collection[i].rent *= 1.5; //apply benifits to other properties of the same type owned by the player
                     sameType++;
-                }
+                } else if(collection[i].getType() == this.type && this.type==5){ //update rent using base 2 for trainstation proerperties
+                    collection[i].rent *= 2;
+                    sameType++;
             }
         }
 
         //update this property's rent based on the number of other properties of the same type owned 
-        this.rent = Math.pow(1.25, sameType);
+        if(this.type!=5){ //update by 1.5x if non-train station
+        this.rent = Math.pow(1.5, sameType);
+        } else if(this.type==5){ //update by 2x if train station
+            this.rent = Math.pow(2, sameType);;
+        }
+
+    }
 
     }
 
     //acessor methods, upate with .this for better design
-    public int getPrice(){
+    public double getPrice(){
         return price;
     }
 
@@ -85,6 +97,10 @@ public class Property extends BoardTile {
     }
     public String getName(){
         return name;
+    }
+
+    public double getHousePrice(){
+        return houseprice;
     }
 
     //do I need these or should I jst make rent public?
