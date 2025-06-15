@@ -1,0 +1,45 @@
+import java.util.*;
+
+public class ChanceCardDeck {
+    private List<ChanceCard> deck;
+    private Random rand = new Random();
+
+    public ChanceCardDeck() {
+        deck = new ArrayList<>();
+        
+        // Money cards - will add or remove money from player
+        deck.add(new MoneyCard("Bank error in your favor", -150, 150));
+        deck.add(new MoneyCard("You inherit money", 100, 200));
+        deck.add(new MoneyCard("Speeding ticket", -150, -50));
+        deck.add(new MoneyCard("Income tax refund", 20, 100));
+        deck.add(new MoneyCard("Doctor's fees", -50, -100));
+        
+        // Jail cards - set boolean variable to true
+        deck.add(new JailCard("Go directly to Jail"));
+        deck.add(new JailCard("Caught cheating! Go to Jail"));
+        deck.add(new JailCard("Tax fraud! Go to Jail"));
+        
+        // Move cards - will move player's position on the board
+        deck.add(new MoveCard("Advance to GO", true));
+        deck.add(new MoveCard("Go forward 1-6 spaces", 1, 6));
+        deck.add(new MoveCard("Go backward 1-6 spaces", -6, -1));
+    }
+
+    public void drawRandomCard(Player player) {
+        int cardIndex = rand.nextInt(deck.size());
+        ChanceCard card = deck.get(cardIndex);
+        
+        System.out.println("You drew: " + card.getDescription());
+        card.apply(player);
+        
+        // Cards are unlimited - they stay in the deck and can be drawn again
+    }
+    
+    public void shuffleDeck() {
+        Collections.shuffle(deck, rand);
+    }
+    
+    public int getDeckSize() {
+        return deck.size();
+    }
+} 
