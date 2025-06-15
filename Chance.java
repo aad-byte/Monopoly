@@ -41,8 +41,8 @@ public class Chance extends BoardTile{
 		}
 	}
 	
-	public static void displayInstruction() {
-		System.out.println(instruction);
+	public static String displayInstruction() {
+		return instruction;
 	}
 
 	/*private static BoardTile searchTile(BoardTile[][] arr, int moveTile) {
