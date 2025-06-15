@@ -44,7 +44,9 @@ public class Main {
 		}
 		
 		//CREATE BOARD TILES ARRAY HERE!!! FIGURE OUT HOW TO INTEGRATE BOARD DATA HERE
-		BoardTile[][] boardTile = new BoardTile [25][3];
+		BoardData boardData = new BoardData();
+		
+		BoardTile[][] boardTile = boardData.getBoardTiles();
 		
 		System.out.println("Each player must roll the dice. The player with the highest roll will go first!");
 		for(int i=0; i<3; i++) {
@@ -106,7 +108,7 @@ public class Main {
 						
 						if(player[i].isAffordable(property.getPrice())){
 							player[i].propertyCollection.display();
-							System.out.print("Based on your list of properties, do you want to buy this property?"
+							System.out.print("Do you want to buy this property?"
 									+ "\nEnter YES to buy this property: ");
 							String input= in.next();
 							if(input.equalsIgnoreCase("yes")) {
