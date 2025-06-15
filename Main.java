@@ -151,7 +151,7 @@ public class Main {
 					Random rand = new Random();
 					int code=in.nextInt(3)+1;
 					Chance.performAction(code, player[i]);
-					Chance.displayInstruction();
+					System.out.println(Chance.displayInstruction());
 				}
 				
 				//You've landed on GOTOJAIL Tile
