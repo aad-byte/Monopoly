@@ -16,7 +16,11 @@ public class Monopoly extends JPanel{
     int squareSize = 120;
     int boardSide = tileWidth * 5 + squareSize * 2;
 
-    BufferedImage img1, img2, img3;
+    int carX = (52*3)/2, carY = (52*29)/2;
+    int hatX = (52*3)/2, hatY = (52*29)/2;
+    int bootX = (52*3)/2, bootY = (52*29)/2;
+
+    BufferedImage img1, img2, img3, boardImage;
 
     Monopoly(){
         setPreferredSize(new Dimension(boardSide, boardSide));
@@ -24,14 +28,20 @@ public class Monopoly extends JPanel{
 
         //images for avatars
         try {
-            img1 = ImageIO.read(new File("car.png"));
-            img2 = ImageIO.read(new File("hat.png"));
-            img3 = ImageIO.read(new File("boot.png"));
-            } catch (IOException e) {
-            e.printStackTrace();
+            img1 = ImageIO.read(getClass().getResource("car.png"));
+            img2 = ImageIO.read(getClass().getResource("hat.png"));
+            img3 = ImageIO.read(getClass().getResource("boot.png"));
+        } catch (IOException | NullPointerException e) {
+            System.out.println("Image loading failed");
         }
 
-        //draw all avatars starting at one point
+        //try to load board image
+        try {
+            boardImage = ImageIO.read(getClass().getResource("monopolyBoard.png"));
+        } catch (IOException | NullPointerException e) {
+            System.err.println("failed to load board image:");
+            e.printStackTrace();
+        }
     }
 
     int cellSize = boardSide/16;
@@ -39,6 +49,13 @@ public class Monopoly extends JPanel{
     @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+
+            //Draw board
+            if (boardImage != null) {
+                g.drawImage(boardImage, 0, 0, 832, 832, null);
+            }
+
+            //draw grid lines for guidances
             for (int i = 0; i <= 16; i++) {
                 int position = i * cellSize;
             
@@ -55,26 +72,39 @@ public class Monopoly extends JPanel{
             g.drawLine(0, cellSize*3, boardSide, cellSize*3);
             g.setColor(Color.yellow);
             g.drawLine(boardSide - cellSize*3, 0,  boardSide - cellSize*3, boardSide);
+
+            if (img1 != null){
+                g.drawImage(img1, carX, carY, 60, 60, null); // car
+            }else{
+                System.out.println("img1");
+            }
+            if (img2 != null) {
+                g.drawImage(img2, hatX, hatY, 40, 40, null); // hat
+            }
+                if (img3 != null) {
+                    g.drawImage(img3, bootX, bootY, 30, 30, null); // boot
+                }
+                
             
         }
 
 
-        protected void moveCar(int x, int y){
-            protected void paintComponent(Graphics g){
-                g.drawImage(img1, x, y, 40, 40, null);
-            }
+        public void moveCar(int x, int y){
+            carX = x;
+            carY = y;
+            repaint();
         }
 
-        protected void moveHat(int x, int y){
-            protected void paintComponent(Graphics g){
-                g.drawImage(img2, x, y, 40, 40, null);
-            }
+        public void moveHat(int x, int y){
+            hatX = x;
+            hatY = y;
+            repaint();
         }
 
-        protected void moveBoot(int x, int y){
-            protected void paintComponent(Graphics g){
-                g.drawImage(img2, x, y, 40, 40, null);
-            }
+        public void moveBoot(int x, int y){
+            bootX = x;
+            bootY = y;
+            repaint();
         }
 
 }

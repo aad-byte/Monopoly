@@ -1,11 +1,12 @@
 package backend;
 
+
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String args[]){
-    
+        App.main(args);
         Scanner input = new Scanner(System.in);
         //initalize the remiang arrays for chance card, jail cards, and a GO SQUARE (arry of length 1 exception)
 
@@ -31,7 +32,7 @@ public class Main {
         }
 
         //finally lets start the game
-        App game = new App();
+        
         int roundNumber = 0; //dont know how to implement collect GO
 
         //game continues until 1 person runs of cash
@@ -47,6 +48,18 @@ public class Main {
 
                 //get refrence to object on the board
                 BoardTile currentTile = BoardTile.getTile(currentPlayer.position, board);
+
+                //coordinates for Grid
+                int xCoordinate = currentTile.getX();
+                int yCoordinate = currentTile.getY();
+
+                if(roundNumber%3 == 0){
+                    App.monopolyGame.moveCar(xCoordinate, yCoordinate);
+                }else if(roundNumber%3 == 1){
+                    App.monopolyGame.moveHat(xCoordinate, yCoordinate);
+                }else{
+                    App.monopolyGame.moveBoot(xCoordinate, yCoordinate);
+                }
 
                 //check which "type" of tile player has landed on 
                 if(currentTile instanceof Property){

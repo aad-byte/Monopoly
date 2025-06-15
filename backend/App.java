@@ -2,6 +2,7 @@ package backend;
 import javax.swing.JFrame;
 
 public class App {
+    public static Monopoly monopolyGame;
     public static void main(String[] args) {
         int propertyWidth = 104;
         int propertyHeight = (int)(propertyWidth * 1.5);
@@ -13,7 +14,7 @@ public class App {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
 
-        Monopoly monopolyGame = new Monopoly();
+        monopolyGame = new Monopoly();
         frame.setLayout(null); //no centering or resizing (get rid of default BorderLayout)
         monopolyGame.setBounds(0,0, boardSide, boardSide); //adjust postion of monopoly Game
         frame.add(monopolyGame); //add board
