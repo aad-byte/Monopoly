@@ -31,6 +31,7 @@ public class Main {
         }
 
         //finally lets start the game
+        App game = new App();
         int roundNumber = 0; //dont know how to implement collect GO
 
         //game continues until 1 person runs of cash

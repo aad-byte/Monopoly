@@ -2,8 +2,8 @@ package backend;
 
 public class Jail extends BoardTile{
     
-    public Jail(int position){
-        super(position);
+    public Jail(int position, int x, int y){
+        super(position, x, y);
     }
 
     public static void sendJail(Player player){

@@ -4,8 +4,8 @@ import java.util.Random;
 public class Chance extends BoardTile{
 	private static String instruction;
 	
-	public Chance(int position) {
-		super(position);
+	public Chance(int position, int x, int y) {
+        super(position, x, y);
 	}
 
 	public static void performAction(int code, Player player, BoardData board) {

@@ -2,13 +2,26 @@ package backend;
 
 public class BoardTile {
     private final int position;
+    private final int GridX;
+    private final int GridY;
 
-    public BoardTile(int position){
+    public BoardTile(int position, int x, int y){
         this.position = position;
+        this.GridX = x;
+        this.GridY = y;
     }
 
     public int getPosition(){
         return position;
+    }
+
+    //methods to retrive pixel coordinates
+    public int getX(){
+        return GridX;
+    }
+
+    public int getY(){
+        return GridY;
     }
 
     //method to retrive board class object reference based on position on board

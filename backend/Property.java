@@ -12,14 +12,13 @@ public class Property extends BoardTile {
     private static final double houseprice = 150; //cool idea to alter this after some certain number of rounds ot mimc houseing market 
 
     //constructor
-    public Property(String name, int price, int position, int rent, int type){
-        super(position); //initalize with boardTile (superclass) constructor
+    public Property(String name, int price, int position, int rent, int type, int x, int y){
+        super(position, x, y); //initalize with boardTile (superclass) constructor
         this.name = name;
         this.price = price;
         this.assetValue = price;
         this.rent = rent;
         this.type = type; //add some logic so the only numbers accepted are between 0-4
-
         //addd value of the proerty fields realted to price and number of fields
         this.owner = null;
         this.owned = false;

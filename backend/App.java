@@ -1,13 +1,15 @@
+package backend;
 import javax.swing.JFrame;
 
 public class App {
     public static void main(String[] args) {
-        int propertyWidth = 80;
+        int propertyWidth = 104;
         int propertyHeight = (int)(propertyWidth * 1.5);
         int boardSide = propertyWidth*5 + propertyHeight*2;
 
         JFrame frame = new JFrame("Monopoly");
-        frame.setSize((boardSide*3)/2, boardSide);
+        frame.setSize((boardSide*3)/2, boardSide+26
+        );
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
 
