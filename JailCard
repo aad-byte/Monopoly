@@ -1,0 +1,11 @@
+public class JailCard extends ChanceCard {
+    
+    public JailCard(String description) {
+        super(description);
+    }
+    
+    public void apply(Player player) {
+        player.inJail = true;
+        player.roundsLeftJail = 3; // Player stays in jail for 3 rounds
+    }
+} 
