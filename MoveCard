@@ -1,0 +1,48 @@
+import java.util.Random;
+
+public class MoveCard extends ChanceCard {
+    private int minSpaces;
+    private int maxSpaces;
+    private boolean goToGo;
+    private Random rand = new Random();
+    
+    public MoveCard(String description, int minSpaces, int maxSpaces) {
+        super(description);
+        this.minSpaces = minSpaces;
+        this.maxSpaces = maxSpaces;
+        this.goToGo = false;
+    }
+    
+    public MoveCard(String description, boolean goToGo) {
+        super(description);
+        this.goToGo = goToGo;
+        this.minSpaces = 0;
+        this.maxSpaces = 0;
+    }
+    
+    public void apply(Player player) {
+        if (goToGo) {
+            // Move to GO (position 0)
+            player.position = 0;
+            player.location = BoardTile.getTile(0, Player.playersGameBoard);
+        } else {
+            // Move by random number of spaces
+            int spaces;
+            if (minSpaces == maxSpaces) {
+                spaces = minSpaces;
+            } else {
+                spaces = rand.nextInt(maxSpaces - minSpaces + 1) + minSpaces;
+            }
+            
+            int newPosition = player.position + spaces;
+            if (newPosition >= 24) {
+                newPosition -= 24; // Wrap around the board
+            } else if (newPosition < 0) {
+                newPosition += 24; // Handle negative movement
+            }
+            
+            player.position = newPosition;
+            player.location = BoardTile.getTile(newPosition, Player.playersGameBoard);
+        }
+    }
+} 
