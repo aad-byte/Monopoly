@@ -1,0 +1,23 @@
+import java.util.Random;
+
+public class MoneyCard extends ChanceCard {
+    private int minAmount;
+    private int maxAmount;
+    private Random rand = new Random();
+    
+    public MoneyCard(String description, int minAmount, int maxAmount) {
+        super(description);
+        this.minAmount = minAmount;
+        this.maxAmount = maxAmount;
+    }
+    
+    public void apply(Player player) {
+        int amount;
+        if (minAmount == maxAmount) {
+            amount = minAmount;
+        } else {
+            amount = rand.nextInt(maxAmount - minAmount + 1) + minAmount;
+        }
+        player.editCash(amount);
+    }
+} 
