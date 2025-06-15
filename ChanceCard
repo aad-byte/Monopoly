@@ -1,0 +1,13 @@
+public abstract class ChanceCard {
+    protected String description;
+    
+    public ChanceCard(String description) {
+        this.description = description;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public abstract void apply(Player player);
+} 
