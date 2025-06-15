@@ -2,7 +2,7 @@ package backend;
 public class Player {
 	
 	//Instance Fields
-	private final String name; //String to store player name(Encapsulated as it should not be changed through the course of the game)
+	private final int name; //String to store player name(Encapsulated as it should not be changed through the course of the game)
 	public int position; //Integer to track the position of the player on the game board.
 	public BoardTile location;
 	public boolean inJail; //In the actual game, you can see if an another player is in jail.
@@ -20,9 +20,9 @@ public class Player {
 	
 	//Constructor (CHANGE TO PARAMETERIZED CONSTRUCTOR)
 	
-	Player(BoardTile tile){
+	Player(BoardTile tile, int player){
 		//Constructor to instantiate player fields. Receives a name preferred by a player.
-		name = "Player 1"; //Sets name to the String received.
+		name = player; //Sets name to the String received.
 		cash=1000; //Each player starts the game with $1000.
 		propertyCollection=new List(); //Creating an empty list that would collect the properties the player would choose to buy
 		position=0; //Position of the GO Tile
@@ -32,13 +32,13 @@ public class Player {
 		inJail = false;
 	}
 	
-	Player(String name){
+	/*Player(String name){
 		//Constructor to instantiate player fields. Receives a name preferred by a player.
 		this.name = name; //Sets name to the String received.
 		cash=200; //Each player starts the game with $200.
 		propertyCollection=new List(); //Creating an empty list that would collect the properties the player would choose to buy
 		position=0; //Position of the GO Tile
-	}
+	}*/
 	
 	//Method to update position of the player
 	public void setPosition(BoardTile tile, int roll) {
@@ -48,7 +48,7 @@ public class Player {
 	}
 	
 	//Getter Methods To Access Private Fields
-	public String getName() {
+	public int getName() {
 		return this.name;
 	}
 	public double getCash() {
