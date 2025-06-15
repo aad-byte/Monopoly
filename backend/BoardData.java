@@ -34,15 +34,15 @@ public class BoardData{
         tiles[3][0] = new Property("Pennsylvania Avenue ", 320, 13, 28, 3);
 
         //prp type 5
-        tiles[4][1] = new Property("Park Place", 350, 22, 30, 4);
-        tiles[4][0] = new Property("Boardwalk ", 400, 23,  50, 4);
+        tiles[4][1] = new Property("Park Place", 350, 22, 20, 4);
+        tiles[4][0] = new Property("Boardwalk ", 400, 23,  30, 4);
 
         tiles[5] = new Property[4];
         //train station
         tiles[5][0] = new Property("Train Station South", 200, 3, 25, 5);
-        tiles[5][1] = new Property("Train Station West", 200, 9, 50, 5);
-        tiles[5][2] = new Property("Train Station North", 200, 15, 100, 5);
-        tiles[5][3] = new Property("Train Station East", 200, 21, 200, 5);
+        tiles[5][1] = new Property("Train Station West", 200, 9, 25, 5);
+        tiles[5][2] = new Property("Train Station North", 200, 15, 25, 5);
+        tiles[5][3] = new Property("Train Station East", 200, 21, 25, 5);
 
         //Generic
         tiles[6] = new Generic[3];

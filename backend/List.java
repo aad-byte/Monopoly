@@ -131,7 +131,7 @@ public class List {
 			Property[] properties = new Property[counter];//create an array to store property objects
 			Node temp2 = head;
 			int index = 0; //iterate through index of the arrays
-			while(temp2.link != null){
+			while(temp2 != null){
 				properties[index] = temp2.property; //store refrence of coressponding proerty in the array
 				index++; //increment to next index
 				temp2 = temp2.link; //iterate to next property in the list

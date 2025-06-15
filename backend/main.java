@@ -13,132 +13,220 @@ public class Main {
         //instance method to return a refrence to a tile, based on it's given board number (position on the board)
 
        BoardData board = new BoardData(); //create board with respective properites and tiles
-    
-    BoardTile temp =  getTile(4, board);
 
-    //must do this
-    if(temp instanceof Property){
-        Property p = (Property)temp;
+        //create 3 players
+        Player[] unorderedPlayers = new Player[3];
+        String name;
+        for(int i = 0; i < unorderedPlayers.length; i++){
+            System.out.println("Enter your name, Player " + (i+1));
+            name = input.nextLine();
+            unorderedPlayers[i] = new Player(BoardTile.getTile(0, board), name); //put in proper name 
+
+        }
+
+        Player[] orderedPlayers = orderPlayers(unorderedPlayers);
+
+        for(int i = 0; i < orderedPlayers.length; i++){
+        System.out.println(orderedPlayers[i].getName() + " rolled as final " + orderedPlayers[i].latestDiceRoll);
+        }
+
+        //finally lets start the game
+        int roundNumber = 0; //dont know how to implement collect GO
+
+        //game continues until 1 person runs of cash
+        while((orderedPlayers[0].getCash() != 0 && orderedPlayers[1].getCash() != 0) && orderedPlayers[2].getCash() != 0){
+            Player currentPlayer = orderedPlayers[roundNumber%3];
+            System.out.println((orderedPlayers[roundNumber%3].getName()) + "'s turn");
+
+            if (!currentPlayer.inJail){
+                currentPlayer.latestDiceRoll = rollDice(); //player rolls dice
+                int diceRoll = currentPlayer.latestDiceRoll;
+                display(diceRoll);
+                currentPlayer.position = (diceRoll + currentPlayer.position) % 24; //after tile 23, value will return to 0
+
+                //get refrence to object on the board
+                BoardTile currentTile = BoardTile.getTile(currentPlayer.position, board);
+
+                //check which "type" of tile player has landed on 
+                if(currentTile instanceof Property){
+                    Property tile1 = (Property) currentTile; //cast tile to respective subclass
+                    System.out.println("You landed on... " + tile1.getName() + "!");
+
+                    if(!tile1.getOwned()){//if the property is unowned //shold prbly out
+                        if(currentPlayer.canBuy(tile1)){//check if player can buy the proerty
+                        System.out.println("Would you like to buy " + tile1.getName() + "?");
+                        int answer = input.nextInt();
+                        if(answer == 1){ //"1 is equivalent to yes for now"
+                            tile1.typeBenefits(currentPlayer); //check for type benifts beofre appending to list
+                            currentPlayer.buyProperty(tile1);
+                            tile1.updateOwner(currentPlayer);
+
+                        }
+                        }else{
+                            System.out.println("You dont have enough money to buy this property...");
+                        }
+                    }else if(tile1.getOwner() == currentPlayer){//if the property is owned by the player
+                        if(currentPlayer.housesPossible(tile1)){
+                            System.out.println("do you want to add a house?");
+                            int response = input.nextInt();
+                            if(response == 1){
+                                tile1.addHouse(); //add house to property, update rent accroindingly
+                                currentPlayer.addHouse(1, tile1); //subtract cash
+                            }
+                        }else{
+                            System.out.println("it is not possible to intall a house");
+                        }
+
+                    }else{ //the tile is owned by someone else, must pay rent
+                        System.out.println("The property is owned...you must pay rent: M " + tile1.getRent());
+                        Player owner = tile1.getOwner(); //get the player who owns this preoperty
+                        owner.editCash(tile1.getRent());
+                        currentPlayer.editCash(-1*(tile1.getRent()));
+                    }
+
+                }else if (currentTile instanceof Chance){
+                    System.out.println("You landed on a chance card!");
+                    Chance tile2 = (Chance) currentTile; //cast tile to respective subclass
+
+                    Random rand = new Random();
+					int code=rand.nextInt(3)+1;
+					Chance.performAction(code, currentPlayer, board);
+                    Chance.displayInstruction();
+
+                }else if (currentTile instanceof Generic){
+                    System.err.println("Generic Square");
+                    Generic tile3 = (Generic) currentTile; //cast tile to respective subclass
+                    tile3.updateSum(currentPlayer);
+                }
+                else if (currentTile instanceof Jail){
+                    System.err.println("OH NO! You are being sent to Jail...");
+                    Jail tile4 = (Jail) currentTile; //cast tile to respective subclass
+                    Jail.sendJail(currentPlayer); //send player to Jail
+                }
+
+            }else{
+                System.out.println("You are in Jail, wait " + currentPlayer.roundsLeftJail + " more turns");
+                currentPlayer.roundsLeftJail --;
+                if(currentPlayer.roundsLeftJail == 0){
+                    currentPlayer.inJail = false;
+                }
+            }
+            roundNumber++;
+
+        }
+
+        System.out.println("Game Terminated\nCalculating Winner.....");
+		String winner;
+		if(orderedPlayers[0].getWealth()>orderedPlayers[1].getWealth()) {
+			if(orderedPlayers[0].getWealth()>orderedPlayers[2].getWealth()) {
+				winner=orderedPlayers[0].getName();
+			}
+			else winner = orderedPlayers[2].getName();
+		}
+		else winner = orderedPlayers[1].getName();
+		
+		System.out.println("DRUMROLL.....");
+		System.out.println(winner+" has WON the game!");
+        
     }
-    else if(temp instanceof Generic){
-        Generic g = (Generic)temp;
-    }else if (temp instanceof Chance){
-        Chance c = (Chance)temp;
-    }else if(temp instanceof Jail){
-        Jail j = (Jail)temp;
-    }
-
-    //create 3 players
-    Player[] unorderedPlayers = new Player[3];
-    for(int i = 0; i < unorderedPlayers.length; i++){
-        unorderedPlayers[i] = new Player(getTile(0, board), i); //put in proper name 
-    }
-
-
-
-    
-}
 
 //instance methods 
 
-//method to retrive board class object reference based on position on board
-
-public static BoardTile getTile(int position, BoardData board){
-    BoardTile tile = null;
-    for(int i = 0; i < board.tiles.length; i++){
-        for(int j = 0; j < board.tiles[i].length; j++){
-            if(board.tiles[i][j].getPosition() == position){
-                tile = board.tiles[i][j];
-            }
-        }
-    }
-
-    return tile;
-}
-
-public static Player[] orderPlayers(Player[] unorderedPlayers){
-    for(int i = 0; i < unorderedPlayers.length; i++){
+//edit this to be SO MUCH MORE effecient
+public static Player[] orderPlayers(Player[] unorderedPlayers) {
+    // Step 1: Roll dice and display
+    for (int i = 0; i < unorderedPlayers.length; i++) {
         unorderedPlayers[i].latestDiceRoll = rollDice();
         display(unorderedPlayers[i].latestDiceRoll);
     }
 
-    //order the players
-    playerOrder(unorderedPlayers);
+    // Step 2: Resolve ties until all rolls are unique
+    boolean unique = false;
+    while (!unique) {
+        playerOrder(unorderedPlayers); // sort by highest roll
 
-    //create array to store ordered players
-    Player[] orderedPlayers = new Player[0];
+        // Only safe to check if we have 3 players (fixed-size logic)
+        if (unorderedPlayers.length == 3) {
+            int r0 = unorderedPlayers[0].latestDiceRoll;
+            int r1 = unorderedPlayers[1].latestDiceRoll;
+            int r2 = unorderedPlayers[2].latestDiceRoll;
 
-    while(unorderedPlayers.length != 0){
-        if(unorderedPlayers[0] != unorderedPlayers[1]){ //if the first shares nothing common with the second
-            addToEnd(unorderedPlayers[0], orderedPlayers);
-            deleteFromStart(1, orderedPlayers);
-            if(unorderedPlayers[0] != unorderedPlayers[1]){
-                addToEnd(unorderedPlayers[0], orderedPlayers);
-                deleteFromStart(1, orderedPlayers);
-            }else{
-                int roll1, roll2;
-                do{
-                    roll1 = rollDice();
-                    unorderedPlayers[0].latestDiceRoll = roll1;
-                    display(roll1);
-                    roll2 = rollDice();
-                    unorderedPlayers[1].latestDiceRoll = roll2;
-                    display(roll2);
-                }while(roll1 == roll2);
+            if (r0 != r1 && r1 != r2 && r0 != r2) {
+                unique = true;
+            } else {
+                if (r0 == r1 && r1 == r2) {
+                    for (int i = 0; i < 3; i++) {
+                        unorderedPlayers[i].latestDiceRoll = rollDice();
+                        display(unorderedPlayers[i].latestDiceRoll);
+                    }
+                } else if (r0 == r1) {
+                    unorderedPlayers[0].latestDiceRoll = rollDice();
+                    display(unorderedPlayers[0].latestDiceRoll);
+                    unorderedPlayers[1].latestDiceRoll = rollDice();
+                    display(unorderedPlayers[1].latestDiceRoll);
+                } else if (r1 == r2) {
+                    unorderedPlayers[1].latestDiceRoll = rollDice();
+                    display(unorderedPlayers[1].latestDiceRoll);
+                    unorderedPlayers[2].latestDiceRoll = rollDice();
+                    display(unorderedPlayers[2].latestDiceRoll);
+                }
+
+                // Re-sort after re-rolling
+                playerOrder(unorderedPlayers);
             }
-            playerOrder(unorderedPlayers);
-            for(int i = 0; i < 2; i++){//add players with distinct dice rolls and their respcitce orderes to list of ordered players
-                addToEnd(unorderedPlayers[0], orderedPlayers);
-                deleteFromStart(1, orderedPlayers);
-            }
-        }else if(unorderedPlayers[0].latestDiceRoll == unorderedPlayers[1].latestDiceRoll && unorderedPlayers[1].latestDiceRoll != unorderedPlayers[2].latestDiceRoll){
-            
+        } else {
+            unique = true; // Defensive: for future use with fewer players
         }
-        
     }
+
+    // Step 3: Build orderedPlayers array using addToEnd + deleteFromStart
+    Player[] orderedPlayers = new Player[0];
+    while (unorderedPlayers.length > 0) {
+        orderedPlayers = addToEnd(unorderedPlayers[0], orderedPlayers);
+        unorderedPlayers = deleteFromStart(1, unorderedPlayers);
+    }
+
+    return orderedPlayers;
 }
 
 //determine player order
-public static Player[] playerOrder(Player[] list){
-    int unsortedLength = list.length -1;
+public static Player[] playerOrder(Player[] list) {
     Player temp;
-    for(int i = unsortedLength; i > 0; i++){
-        for(int j = 0; j < unsortedLength; j++){
-            if(list[i].latestDiceRoll < list[i+1].latestDiceRoll ){
-                temp = list[i];
-                list[i] = list[i+1];
-                list[i+1] = temp;
+    for (int i = 0; i < list.length - 1; i++) {
+        for (int j = 0; j < list.length - 1 - i; j++) {
+            if (list[j].latestDiceRoll < list[j + 1].latestDiceRoll) {
+                temp = list[j];
+                list[j] = list[j + 1];
+                list[j + 1] = temp;
             }
         }
-        unsortedLength -= 1;
     }
     return list;
 }
 
+
 //this method receives a list and and the number. It deletes the given number of nodes from the beginning of the list
-public static Player[] deleteFromStart(int x, Player[] list){
+public static Player[] deleteFromStart(int x, Player[] list) {
     Player[] temp = new Player[list.length - x];
 
-    for(int i = 0; i < list.length - 2; i++){
-        temp[i] = list[i+x];
+    for (int i = 0; i < temp.length; i++) {
+        temp[i] = list[i + x];
     }
 
     return temp;
 }
 
-public static Player[] addToEnd(Player player, Player[] list){
+public static Player[] addToEnd(Player player, Player[] list) {
     Player[] temp = new Player[list.length + 1];
 
-    //copy all data from list to temp
-    for(int i = 0; i < list.length + 1; i++){
+    for (int i = 0; i < list.length; i++) {
         temp[i] = list[i];
     }
 
-    //append new player
     temp[list.length] = player;
 
     return temp;
-}   
+}
 //roll dice
 public static int rollDice(){
     Random rand = new Random();

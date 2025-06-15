@@ -6,9 +6,9 @@ public class Jail extends BoardTile{
         super(position);
     }
 
-    public void sendJail(Player player){
-        player.inJail = false;
+    public static void sendJail(Player player){
+        player.inJail = true;
         player.position = 6; //Change player positon to the visiting Jail Board (figure out a slightly diff animation for this movement)
-        player.roundsLeftJail = 2;
+        player.roundsLeftJail += 2;
     }
 }

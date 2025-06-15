@@ -3,13 +3,13 @@ package backend;
 public class Property extends BoardTile {
     private boolean owned;
     private Player owner;
-    public double rent;
+    private double rent;
     private double assetValue;
     private final double price;
     private final int type;
     private int houses;
     private final String name;
-    private static final double houseprice = 100; //cool idea to alter this after some certain number of rounds ot mimc houseing market 
+    private static final double houseprice = 150; //cool idea to alter this after some certain number of rounds ot mimc houseing market 
 
     //constructor
     public Property(String name, int price, int position, int rent, int type){
@@ -35,41 +35,45 @@ public class Property extends BoardTile {
         if(owned && (owner.getCash() > 50)){
             this.houses++;
             this.owner.editCash(-50);
-            this.rent *= 2; //each house doubles the rent value
-            this.assetValue += 20; //asset value increases with very house purchased
+            this.rent += 20; //each house adds 2.5 to the rent value
+            this.assetValue += 5; //asset value increases with very house purchased
         }
     }
 
-    public void typeBenefits(Player buyer){ //increases rent if the player owns proerpties of other types, for all the types of propeties owned (phrase better)
-        //iterate through the player's prertie list, keeping track of each count 
-        //everytime you come across a proeprty of hte same tpye, multiply it's rent by by 1.25
-        //after iterating entire linked list, multiply current rent by 1.25to the power of the number of proeprties counted 
-
+    public void typeBenefits(Player buyer) {
+        // increases rent if the player owns properties of the same type
+        // iterate through the player's property list, keeping track of each count 
+        // every time you come across a property of the same type, multiply its rent by 1.5 (or 2 for train stations)
+        // after iterating through the entire list, multiply this property’s rent by 1.5^n (or 2^n), where n is number of same-type properties
+    
         int sameType = 0;
-        Property[] collection = buyer.getList().toArray(); //get collection of properties in array format
-
-        if(collection != null){
-            for(int i = 0; i < collection.length; i++){
-                //update rent by 1.5 for non-trainstation properties
-                if(collection[i].getType() == this.type && this.type!=5){//compare each owned property's type to this property
-                    collection[i].rent *= 1.5; //apply benifits to other properties of the same type owned by the player
-                    sameType++;
-                } else if(collection[i].getType() == this.type && this.type==5){ //update rent using base 2 for trainstation proerperties
-                    collection[i].rent *= 2;
-                    sameType++;
+        Property[] collection = buyer.getList().toArray(); // get collection of properties in array format
+    
+        if (collection != null) { // if array exists
+            for (int i = 0; i < collection.length; i++) {
+                if (collection[i] != null) { //  check if property is not null
+                    // update rent by 1.5x for non-train station properties
+                    if (collection[i].getType() == this.type && this.type != 5) {
+                        collection[i].rent *= 1.5; // apply benefits to other properties of the same type owned by the player
+                        sameType++;
+                    } 
+                    // update rent by 2x for train station properties
+                    else if (collection[i].getType() == this.type && this.type == 5) {
+                        collection[i].rent *= 2;
+                        sameType++;
+                    }
+                }
+            }
+    
+            // update this property's rent based on the number of other same-type properties owned
+            if (this.type != 5) { // non-train station: scale by 1.5^sameType
+                this.rent *= Math.pow(1.5, sameType);
+            } else { // train station: scale by 2^sameType
+                this.rent *= Math.pow(2, sameType);
             }
         }
-
-        //update this property's rent based on the number of other properties of the same type owned 
-        if(this.type!=5){ //update by 1.5x if non-train station
-        this.rent = Math.pow(1.5, sameType);
-        } else if(this.type==5){ //update by 2x if train station
-            this.rent = Math.pow(2, sameType);;
-        }
-
     }
 
-    }
 
     //acessor methods, upate with .this for better design
     public double getPrice(){
@@ -78,6 +82,9 @@ public class Property extends BoardTile {
 
     public Player getOwner(){
         return owner;
+    }
+    public Boolean getOwned(){
+        return owned;
     }
 
     public boolean getOwnershipStatus(){
@@ -101,6 +108,10 @@ public class Property extends BoardTile {
 
     public double getHousePrice(){
         return houseprice;
+    }
+
+    public double getAssetValue(){
+        return assetValue;
     }
 
     //do I need these or should I jst make rent public?

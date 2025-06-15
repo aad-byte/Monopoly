@@ -2,7 +2,7 @@ package backend;
 public class Player {
 	
 	//Instance Fields
-	private final int name; //String to store player name(Encapsulated as it should not be changed through the course of the game)
+	private final String name; //String to store player name(Encapsulated as it should not be changed through the course of the game)
 	public int position; //Integer to track the position of the player on the game board.
 	public BoardTile location;
 	public boolean inJail; //In the actual game, you can see if an another player is in jail.
@@ -20,10 +20,10 @@ public class Player {
 	
 	//Constructor (CHANGE TO PARAMETERIZED CONSTRUCTOR)
 	
-	Player(BoardTile tile, int player){
+	Player(BoardTile tile, String player){
 		//Constructor to instantiate player fields. Receives a name preferred by a player.
 		name = player; //Sets name to the String received.
-		cash=1000; //Each player starts the game with $1000.
+		cash=500; //Each player starts the game with $1000.
 		propertyCollection=new List(); //Creating an empty list that would collect the properties the player would choose to buy
 		position=0; //Position of the GO Tile
 		location = tile;
@@ -48,7 +48,7 @@ public class Player {
 	}
 	
 	//Getter Methods To Access Private Fields
-	public int getName() {
+	public String getName() {
 		return this.name;
 	}
 	public double getCash() {
@@ -97,15 +97,23 @@ public class Player {
 
 	}
 
+	//Method to update position of the player
+	public void updatePosition(BoardTile tile, int position, int roll) {
+		location = tile;
+		position=tile.getPosition();
+		latestDiceRoll=roll;
+	}
+
 	//3. Method to calculate how many houses a player can build when they've landed on their property.
-	public int housesPossible(Property property) {
+	public boolean housesPossible(Property property) {
 		///Receives one of their properties
 		//Calculates and returns possible # of houses based on cash
 		//Returns -1 if the property is a train station
 		
+
 		//Checks if property is a train station/not
-		if(property.getType() == 5) return -1;
-		else return (int) (cash/property.getHousePrice());
+		if(property.getType() == 5) return false;
+		else return cash-property.getHousePrice()>0;
 	}
 	
 	//4. Method to upgrade property, when feasible based on player's cash
@@ -142,6 +150,10 @@ public class Player {
 		double wealth= cash;
 
 		//iterate through properties adding up their assetvalues
+		Property[] collection = propertyCollection.toArray();
+		for(int i = 0; i < collection.length; i++){
+			wealth += collection[i].getAssetValue();
+		}
 
 		return wealth;
 	}
