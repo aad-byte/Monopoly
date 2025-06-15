@@ -148,10 +148,11 @@ public class Main {
 				
 				//If you landed on a chance card.
 				else if(tileLanded instanceof Chance) {
-					Random rand = new Random();
+					Random rand = new Random(); 
 					int code=in.nextInt(3)+1;
 					Chance.performAction(code, player[i]);
 					System.out.println(Chance.displayInstruction());
+					Chance.performAction(player[i]); // added by Rushi not sure if the code above needs to be removed but this works with the new card system
 				}
 				
 				//You've landed on GOTOJAIL Tile
