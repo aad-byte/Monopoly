@@ -1,12 +1,17 @@
 import java.util.Random;
 public class Chance extends BoardTile{
 	private static String instruction;
-	
+	private static ChanceCardDeck cardDeck = new ChanceCardDeck();//added by Rushi
+
 	public Chance(int position) {
 		super(position);
 	}
-
+public static void performAction(Player player) { //added by Rushi
+		cardDeck.drawRandomCard(player);
+	}
+	
 	public static void performAction(int code, Player player) {
+		// Keep this method for backward compatibility
 		Random rand = new Random();
 		
 		//Type #1: Add/Deduct Cash
@@ -40,11 +45,18 @@ public class Chance extends BoardTile{
 			instruction="Move up "+posToMove+" positions!";
 		}
 	}
-	
+
 	public static String displayInstruction() {
 		return instruction;
 	}
-
+	//added by Rushi	
+	public static void shuffleDeck() {
+		cardDeck.shuffleDeck();
+	}
+	//added by Rushi	
+	public static int getDeckSize() {
+		return cardDeck.getDeckSize();
+	}
 	/*private static BoardTile searchTile(BoardTile[][] arr, int moveTile) {
 		for(int i=0; i<arr.length; i++) {
 			
