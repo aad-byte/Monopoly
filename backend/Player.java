@@ -151,10 +151,13 @@ public class Player {
 
 		//iterate through properties adding up their assetvalues
 		Property[] collection = propertyCollection.toArray();
-		for(int i = 0; i < collection.length; i++){
-			wealth += collection[i].getAssetValue();
+		if(collection != null){
+			for(int i = 0; i < collection.length; i++){
+				wealth += collection[i].getAssetValue();
+			}
+	
 		}
-
+		
 		return wealth;
 	}
 

@@ -54,35 +54,17 @@ public class Monopoly extends JPanel{
             if (boardImage != null) {
                 g.drawImage(boardImage, 0, 0, 832, 832, null);
             }
-
-            //draw grid lines for guidances
-            for (int i = 0; i <= 16; i++) {
-                int position = i * cellSize;
-            
-                // Horizontal lines
-                g.drawLine(0, position, boardSide, position);
-                // Vertical lines
-                g.drawLine(position, 0, position, boardSide);
-            }
-            g.setColor(Color.RED);
-            g.drawLine(cellSize*3, 0, cellSize*3, boardSide);
-            g.setColor(Color.BLUE);
-            g.drawLine(0, boardSide-(cellSize*3), boardSide, boardSide-(cellSize*3));
-            g.setColor(Color.GREEN);
-            g.drawLine(0, cellSize*3, boardSide, cellSize*3);
-            g.setColor(Color.yellow);
-            g.drawLine(boardSide - cellSize*3, 0,  boardSide - cellSize*3, boardSide);
-
+          
             if (img1 != null){
-                g.drawImage(img1, carX, carY, 60, 60, null); // car
+                g.drawImage(img1, carX, carY, 80, 80, null); // car
             }else{
                 System.out.println("img1");
             }
             if (img2 != null) {
-                g.drawImage(img2, hatX, hatY, 40, 40, null); // hat
+                g.drawImage(img2, hatX, hatY, 55, 55, null); // hat
             }
                 if (img3 != null) {
-                    g.drawImage(img3, bootX, bootY, 30, 30, null); // boot
+                    g.drawImage(img3, bootX, bootY, 45, 45, null); // boot
                 }
                 
             

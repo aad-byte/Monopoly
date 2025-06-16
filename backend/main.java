@@ -19,7 +19,8 @@ public class Main {
         Player[] unorderedPlayers = new Player[3];
         String name;
         for(int i = 0; i < unorderedPlayers.length; i++){
-            System.out.println("Enter your name, Player " + (i+1));
+            App.gameLog.clearMessages();
+            App.gameLog.appendMessage("Enter your name, Player " + (i+1) + " (in the terminal)");
             name = input.nextLine();
             unorderedPlayers[i] = new Player(BoardTile.getTile(0, board), name); //put in proper name 
 
@@ -36,14 +37,48 @@ public class Main {
         int roundNumber = 0; //dont know how to implement collect GO
 
         //game continues until 1 person runs of cash
-        while((orderedPlayers[0].getCash() != 0 && orderedPlayers[1].getCash() != 0) && orderedPlayers[2].getCash() != 0){
+        while((orderedPlayers[0].getCash() > 0 && orderedPlayers[1].getCash() > 0) && orderedPlayers[2].getCash() > 0){
             Player currentPlayer = orderedPlayers[roundNumber%3];
-            System.out.println((orderedPlayers[roundNumber%3].getName()) + "'s turn");
+            App.gameLog.clearMessages();
+            App.gameLog.appendMessage(orderedPlayers[roundNumber%3].getName() + "'s turn");
+
+
+            //create a string of all properties owned by the player to dynamically update player info card
+            Property[] owned = currentPlayer.getList().toArray();
+            String propList;
+            if(owned != null){
+                propList = "";
+                for(int i = 0; i < owned.length; i++){
+                    propList += owned[i].getName();
+                    if(i < owned.length - 1){
+                        propList += ", ";
+                    }
+                }
+            }else{
+                propList = "No properties owned";
+            }
+
+            String avatar;
+            if(roundNumber%3 == 0){
+                avatar = "Car";
+            }else if(roundNumber%3 == 1){
+                avatar = "Hat";
+            }else{
+                avatar = "Boot";
+            }
+
+            App.playerDisplay.updateInfo(currentPlayer.getName(), currentPlayer.getCash(), propList, avatar); //update player info card on the screen
 
             if (!currentPlayer.inJail){
                 currentPlayer.latestDiceRoll = rollDice(); //player rolls dice
                 int diceRoll = currentPlayer.latestDiceRoll;
-                display(diceRoll);
+
+                //display dice
+                App.dice.setDiceFace(diceRoll);
+                //output in Game log
+                App.gameLog.clearMessages();
+                App.gameLog.appendMessage("You rolled..." + diceRoll);
+                
                 currentPlayer.position = (diceRoll + currentPlayer.position) % 24; //after tile 23, value will return to 0
 
                 //get refrence to object on the board
@@ -64,12 +99,17 @@ public class Main {
                 //check which "type" of tile player has landed on 
                 if(currentTile instanceof Property){
                     Property tile1 = (Property) currentTile; //cast tile to respective subclass
-                    System.out.println("You landed on... " + tile1.getName() + "!");
+                    App.gameLog.appendMessage("\nYou landed on... " + tile1.getName() + "!");
+                
 
                     if(!tile1.getOwned()){//if the property is unowned //shold prbly out
                         if(currentPlayer.canBuy(tile1)){//check if player can buy the proerty
-                        System.out.println("Would you like to buy " + tile1.getName() + "?");
+                            //prompt for purchase
+                        
+                        //prompt for purchase 
+                        App.gameLog.appendMessage("\nWould you like to buy " + tile1.getName() + "? (If yes, enter 1 in the terminal, else enter any other key)");   
                         int answer = input.nextInt();
+
                         if(answer == 1){ //"1 is equivalent to yes for now"
                             tile1.typeBenefits(currentPlayer); //check for type benifts beofre appending to list
                             currentPlayer.buyProperty(tile1);
@@ -77,59 +117,116 @@ public class Main {
 
                         }
                         }else{
-                            System.out.println("You dont have enough money to buy this property...");
+                            App.gameLog.appendMessage("\nYou dont have enough money to buy this property...");
+                            App.gameLog.appendMessage("\nEnter any key to continue");
+                            String ans = input.next();
                         }
                     }else if(tile1.getOwner() == currentPlayer){//if the property is owned by the player
+                        App.gameLog.appendMessage("\nYou own this house!");
                         if(currentPlayer.housesPossible(tile1)){
-                            System.out.println("do you want to add a house?");
+
+                            //prompt to purchase a house
+                            App.gameLog.appendMessage("\ndo you want to add a house? (If yes, enter 1 in the terminal, else enter any other key)");
+
+                            
                             int response = input.nextInt();
                             if(response == 1){
                                 tile1.addHouse(); //add house to property, update rent accroindingly
                                 currentPlayer.addHouse(1, tile1); //subtract cash
                             }
                         }else{
-                            System.out.println("it is not possible to intall a house");
+                            App.gameLog.appendMessage("\nit is not possible to intall a house");
+                            App.gameLog.appendMessage("\nEnter any key to continue");
+                            String ans = input.next();
                         }
 
                     }else{ //the tile is owned by someone else, must pay rent
-                        System.out.println("The property is owned...you must pay rent: M " + tile1.getRent());
+                        App.gameLog.appendMessage("\nThe property is owned...you must pay rent: M " + tile1.getRent());
+                        
                         Player owner = tile1.getOwner(); //get the player who owns this preoperty
                         owner.editCash(tile1.getRent());
                         currentPlayer.editCash(-1*(tile1.getRent()));
+
+                        App.gameLog.appendMessage("\nEnter any key to continue");
+                            String ans = input.next();
                     }
 
                 }else if (currentTile instanceof Chance){
-                    System.out.println("You landed on a chance card!");
+                    App.gameLog.appendMessage("\nYou landed on a chance card!");
+                    
                     Chance tile2 = (Chance) currentTile; //cast tile to respective subclass
 
                     Random rand = new Random();
 					int code=rand.nextInt(3)+1;
 					Chance.performAction(code, currentPlayer, board);
-                    Chance.displayInstruction();
+
+                    //if chance card moved the player in jail, reflet this on the board
+                    if(currentPlayer.inJail){
+                        if(roundNumber%3 == 0){
+                            App.monopolyGame.moveCar(78, 78);
+                        }else if(roundNumber%3 == 1){
+                            App.monopolyGame.moveHat(78, 78);
+                        }else{
+                            App.monopolyGame.moveBoot(78, 78);
+                        }
+                    }
+
+                    //Append Chance card instructions to the game log
+                    App.gameLog.appendMessage(Chance.retrunInstruction());
+                    App.gameLog.appendMessage("\nEnter any key to continue");
+                            String ans = input.next();
 
                 }else if (currentTile instanceof Generic){
-                    System.err.println("Generic Square");
+                    
                     Generic tile3 = (Generic) currentTile; //cast tile to respective subclass
-                    tile3.updateSum(currentPlayer);
+                    App.gameLog.appendMessage("\nNothing happens, you landed on " + tile3.getName());
+                    App.gameLog.appendMessage("\nEnter any key to continue");
+                            String ans = input.next();
                 }
                 else if (currentTile instanceof Jail){
-                    System.err.println("OH NO! You are being sent to Jail...");
+                    App.gameLog.appendMessage("\nOH NO! You are being sent to Jail...");
+                    
                     Jail tile4 = (Jail) currentTile; //cast tile to respective subclass
                     Jail.sendJail(currentPlayer); //send player to Jail
+
+                    //send player to jail visually on the board
+                    if(roundNumber%3 == 0){
+                        App.monopolyGame.moveCar(78, 78);
+                    }else if(roundNumber%3 == 1){
+                        App.monopolyGame.moveHat(78, 78);
+                    }else{
+                        App.monopolyGame.moveBoot(78, 78);
+                    }
+
+                    App.gameLog.appendMessage("\nEnter any key to continue");
+                            String ans = input.next();
+
                 }
 
             }else{
-                System.out.println("You are in Jail, wait " + currentPlayer.roundsLeftJail + " more turns");
+                App.gameLog.clearMessages();
+                App.gameLog.appendMessage("You are in Jail, wait " + currentPlayer.roundsLeftJail + " more turns");
+                
                 currentPlayer.roundsLeftJail --;
                 if(currentPlayer.roundsLeftJail == 0){
                     currentPlayer.inJail = false;
                 }
+                App.gameLog.appendMessage("\nEnter any key to continue");
+                            String ans = input.next();
             }
+
+            int continueConfirm ;
+          /*   do{
+                App.gameLog.appendMessage("Please input 1 in the terminal to continue...");
+                continueConfirm = input.nextInt();
+            }while(continueConfirm != 1); */
+            
             roundNumber++;
 
         }
 
-        System.out.println("Game Terminated\nCalculating Winner.....");
+        App.gameLog.appendMessage("Game Terminated\nCalculating Winner.....Check the terminal");
+        
 		String winner;
 		if(orderedPlayers[0].getWealth()>orderedPlayers[1].getWealth()) {
 			if(orderedPlayers[0].getWealth()>orderedPlayers[2].getWealth()) {

@@ -19,7 +19,7 @@ public class Chance extends BoardTile{
 				amount=(rand.nextInt(401)-200)/5;
 			}while(Math.abs(amount)>50);
 			
-			amount= (double) -200 + (amount*5);
+			amount= (double) -10 + (amount*5);
 			player.editCash(amount);
 			
 			if(amount>0) instruction="Gain $"+amount+"!";
@@ -47,6 +47,10 @@ public class Chance extends BoardTile{
 	
 	public static void displayInstruction() {
 		System.out.println(instruction);
+	}
+
+    public static String retrunInstruction() {
+		return instruction;
 	}
 
 }
