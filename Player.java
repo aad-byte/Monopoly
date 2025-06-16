@@ -5,18 +5,16 @@ public class Player {
 	
 	private final String name; //String to store player name(Encapsulated as it should not be changed through the course of the game)
 	public int position; //Integer to track the position of the player on the game board.
-	public BoardTile location;
+	public BoardTile location; //Location of the player on the board
 	public boolean inJail; //In the actual game, you can see if an another player is in jail.
 
 	public int latestDiceRoll; //Integer that keeps track of all the latest dice roll of the player (from 1-6)
-	public static int roundsPassed; // Integer to track of the # of rounds passed in the game. 
 	
-	public double cash;//Cash owned by player SHOULD NOT be altered from the main program, but should be accessible by property and chance classes.
-	public List propertyCollection; // List of all properties owned
+	private double cash;//Cash owned by player SHOULD NOT be altered from the main program, but should be accessible by property and chance classes.
+	private List propertyCollection; // List of all properties owned
 	private double assetValue; //Double value to hold the sum of all property prices.
 
-	public int roundsLeftJail;
-	public static boolean loserFound;
+	public int roundsLeftJail; 
 	
 	//Actual constructor
 	Player(String name){
@@ -28,20 +26,34 @@ public class Player {
 		latestDiceRoll=0;
 	}
 		
+	Player(BoardTile tile, String name){
+		//Constructor to instantiate player fields. Receives a name preferred by a player.
+		this.name = name; //Sets name to the String received.
+		cash=500; //Each player starts the game with $1000.
+		propertyCollection=new List(); //Creating an empty list that would collect the properties the player would choose to buy
+		position=0; //Position of the GO Tile
+		location = tile;
+		//Added by Aadya
+		roundsLeftJail = 0;
+		inJail = false;
+	}
+	
 	//Getter Methods To Access Private Fields
 	public String getName() {
 		return this.name;
 	}
 	public double getCash() {
-		//Returns cash rounded to 2 decimal places.
+		//Returns cash owned by the player
 		return cash;
 	}
 	
 	public double getWealth() {
+		//Returns total wealth of the player
 		return cash+propertyCollection.getTotalAssetValue();
 	}
 	
 	public List getList() {
+		//Returns the list of property collections
 		return propertyCollection;
 	}
 	
@@ -61,8 +73,16 @@ public class Player {
 		cash+=amount;
 	}
 	
+	//Method to update position of the player
+	public void updatePosition(BoardTile tile, int roll, int latestDiceRoll2) {
+		location = tile;
+		position=tile.getPosition();
+		latestDiceRoll=roll;
+	}
+		
 	//This method checks if a player can afford to upgrade or buy. 
 	public boolean isAffordable(double amount) {
+		//Checks if the cash owned by player is greater than the amount that needs to be sent 
 		if(cash>amount) return true;
 		else return false;
 	}
@@ -92,36 +112,4 @@ public class Player {
 		this.editCash(amount); //Decreasing cash from the player.
 		other.editCash(amount); //Increasing the cash of the player on whose property the implicit player is on.
 	}
-	
-	//Method to update position of the player
-	public void updatePosition(BoardTile tile, int roll) {
-		location = tile;
-		position=tile.getPosition();
-		latestDiceRoll=roll;
-	}
-
 }
-
-/*
- * //Method to sell property 
-	public void sellProperty(int pos) {
-		Property sold = this.propertyCollection.delete(pos);  
-		location.property.getOwner().propertyCollection.insert(sold);
-	}
- */
-//Method to check if a player can buy a property
-	/*public boolean canBuy(Property property) {
-		//Receives a property
-		//Returns true if player can afford property, else false
-		return cash-property.getPrice()>0;
-	}
-	//Method to calculate how many houses a player can build when they've landed on their property.
-	public int housesPossible(Property property) {
-		///Receives one of their properties
-		//Calculates and returns possible # of houses based on cash
-		//Returns -1 if the property is a train station
-		
-		//Checks if property is a train station/not
-		if(property.isTrain) return -1;
-		else return (int) (cash/property.getHousePrice());
-	}*/
