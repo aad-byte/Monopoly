@@ -26,12 +26,9 @@ public class Main {
 
         }
 
-        Player[] orderedPlayers = orderPlayers(unorderedPlayers);
+        Player[] orderedPlayers = orderPlayersInitial(unorderedPlayers);
 
-        for(int i = 0; i < orderedPlayers.length; i++){
-        System.out.println(orderedPlayers[i].getName() + " rolled as final " + orderedPlayers[i].latestDiceRoll);
-        }
-
+    
         //finally lets start the game
         
         int roundNumber = 0; //dont know how to implement collect GO
@@ -100,6 +97,22 @@ public class Main {
                 if(currentTile instanceof Property){
                     Property tile1 = (Property) currentTile; //cast tile to respective subclass
                     App.gameLog.appendMessage("\nYou landed on... " + tile1.getName() + "!");
+
+
+                    //update property info card
+
+                    //check if owner exsists
+                    String owner = "N/A";
+                    if(tile1.getOwner() != null){
+                        owner = tile1.getOwner().getName();
+                    }
+
+                    String houses = "N/A";
+                    if(tile1.getType() != 5){
+                        houses = Integer.toString(tile1.getHouses());
+                    }
+
+                    App.propertyDisplay.updateInfo(tile1.getName(), Double.toString(tile1.getPrice()), Double.toString(tile1.getRent()), owner, houses, Double.toString(tile1.getAssetValue()));
                 
 
                     if(!tile1.getOwned()){//if the property is unowned //shold prbly out
@@ -143,8 +156,8 @@ public class Main {
                     }else{ //the tile is owned by someone else, must pay rent
                         App.gameLog.appendMessage("\nThe property is owned...you must pay rent: M " + tile1.getRent());
                         
-                        Player owner = tile1.getOwner(); //get the player who owns this preoperty
-                        owner.editCash(tile1.getRent());
+                        Player Owner = tile1.getOwner(); //get the player who owns this preoperty
+                        Owner.editCash(tile1.getRent());
                         currentPlayer.editCash(-1*(tile1.getRent()));
 
                         App.gameLog.appendMessage("\nEnter any key to continue");
@@ -153,6 +166,10 @@ public class Main {
 
                 }else if (currentTile instanceof Chance){
                     App.gameLog.appendMessage("\nYou landed on a chance card!");
+
+                    //Update info card
+                    String na = "N/A";
+                    App.propertyDisplay.updateInfo("Chance Card", na, na, na, na, na);
                     
                     Chance tile2 = (Chance) currentTile; //cast tile to respective subclass
 
@@ -171,6 +188,24 @@ public class Main {
                         }
                     }
 
+                    //if chance card caused movement, have to display it on the board
+                    if(Chance.isMovement){
+                         //get tile to move player
+                        BoardTile tempTile = BoardTile.getTile(currentPlayer.position, board);
+
+                        //determine  x and y coordinates for new tile
+                        int gridX = tempTile.getX();
+                        int gridY = tempTile.getY();
+
+                        if(roundNumber%3 == 0){ //move respective avatar to grid cooridnates
+                            App.monopolyGame.moveCar(gridX, gridX);
+                        }else if(roundNumber%3 == 1){
+                            App.monopolyGame.moveHat(gridX, gridY);
+                        }else{
+                            App.monopolyGame.moveBoot(gridX, gridY);
+                        }
+                    }
+
                     //Append Chance card instructions to the game log
                     App.gameLog.appendMessage(Chance.retrunInstruction());
                     App.gameLog.appendMessage("\nEnter any key to continue");
@@ -179,12 +214,21 @@ public class Main {
                 }else if (currentTile instanceof Generic){
                     
                     Generic tile3 = (Generic) currentTile; //cast tile to respective subclass
+
+                    //Update info card
+                    String na = "N/A";
+                    App.propertyDisplay.updateInfo(tile3.getName(), na, na, na, na, na);
+                    
                     App.gameLog.appendMessage("\nNothing happens, you landed on " + tile3.getName());
                     App.gameLog.appendMessage("\nEnter any key to continue");
                             String ans = input.next();
                 }
                 else if (currentTile instanceof Jail){
                     App.gameLog.appendMessage("\nOH NO! You are being sent to Jail...");
+
+                    //Update info card
+                    String na = "N/A";
+                    App.propertyDisplay.updateInfo("GO TO JAIL", na, na, na, na, na);
                     
                     Jail tile4 = (Jail) currentTile; //cast tile to respective subclass
                     Jail.sendJail(currentPlayer); //send player to Jail
@@ -241,67 +285,182 @@ public class Main {
         
     }
 
-//instance methods 
+// methods 
 
-//edit this to be SO MUCH MORE effecient
-public static Player[] orderPlayers(Player[] unorderedPlayers) {
+
+
+//this method receives an array of unodered players
+//it prompts players for dice rolls to determine the order of turns in the game with multi level sorting
+//the method retruns an array of ordered players
+public static Player[] orderPlayersInitial(Player[] unorderedPlayers) {
+    Player[] orderedPlayers = new Player[0]; //decalre new array of ordered players to append to 
+
+    Scanner input = new Scanner(System.in);
+    App.gameLog.clearMessages();
+    App.gameLog.appendMessage("Lets organize players based on dice rolls...");
+    App.gameLog.appendMessage("Enter any key to continue...");
+    String ans = input.next();
     // Step 1: Roll dice and display
     for (int i = 0; i < unorderedPlayers.length; i++) {
         unorderedPlayers[i].latestDiceRoll = rollDice();
-        display(unorderedPlayers[i].latestDiceRoll);
+        int diceRoll = unorderedPlayers[i].latestDiceRoll;
+        App.gameLog.clearMessages();
+        App.gameLog.appendMessage(unorderedPlayers[i].getName() + " rolled " + diceRoll);
+        App.dice.setDiceFace(diceRoll);
+        App.gameLog.appendMessage("Enter any key to continue...");
+        ans = input.next();
     }
 
     // Step 2: Resolve ties until all rolls are unique
     boolean unique = false;
-    while (!unique) {
-        playerOrder(unorderedPlayers); // sort by highest roll
+    int diceRoll;
+    while (!unique) { //keep repeating until all players are a part of ordered player list
+        playerOrderDiceRoll(unorderedPlayers); // sort by highest roll, do I need to equat array to function or does it already assign it?
 
-        // Only safe to check if we have 3 players (fixed-size logic)
-        if (unorderedPlayers.length == 3) {
+        if (unorderedPlayers.length == 3) { //saftey check if player list every changes 
+            //asign alias to each player's dice roll
             int r0 = unorderedPlayers[0].latestDiceRoll;
             int r1 = unorderedPlayers[1].latestDiceRoll;
             int r2 = unorderedPlayers[2].latestDiceRoll;
 
-            if (r0 != r1 && r1 != r2 && r0 != r2) {
-                unique = true;
+            if (r0 != r1 && r1 != r2 && r0 != r2) { //if all rolls were different on the first iteration, then unqie order of players can be detmierined
+                unique = true; //it wille exit loop
+
+                //imdetaley assing the orderplayers array as the sorted by dice rolls version of unorderd players
+                orderedPlayers = playerOrderDiceRoll(unorderedPlayers); 
             } else {
-                if (r0 == r1 && r1 == r2) {
-                    for (int i = 0; i < 3; i++) {
+                if (r0 == r1 && r1 == r2) { //if all three are equal , do not lift bool flag, so the loop continues
+
+                    App.gameLog.clearMessages();
+                    App.gameLog.appendMessage("All the rolls were the same, each player must re-roll");
+        
+                    for (int i = 0; i < 3; i++) {//roll dice for all three again, the loop will repeat
                         unorderedPlayers[i].latestDiceRoll = rollDice();
-                        display(unorderedPlayers[i].latestDiceRoll);
+                        diceRoll = unorderedPlayers[i].latestDiceRoll;
+                        App.gameLog.clearMessages();
+                        App.gameLog.appendMessage(unorderedPlayers[i].getName() + " rolled " + diceRoll);
+                        App.dice.setDiceFace(diceRoll);
+                        App.gameLog.appendMessage("Enter any key to continue...");
+                        ans = input.next();
                     }
-                } else if (r0 == r1) {
-                    unorderedPlayers[0].latestDiceRoll = rollDice();
-                    display(unorderedPlayers[0].latestDiceRoll);
-                    unorderedPlayers[1].latestDiceRoll = rollDice();
-                    display(unorderedPlayers[1].latestDiceRoll);
-                } else if (r1 == r2) {
-                    unorderedPlayers[1].latestDiceRoll = rollDice();
-                    display(unorderedPlayers[1].latestDiceRoll);
-                    unorderedPlayers[2].latestDiceRoll = rollDice();
-                    display(unorderedPlayers[2].latestDiceRoll);
+                } else if (r0 == r1) {//if the first two are equal
+
+                    orderedPlayers = addToStart(unorderedPlayers[2], orderedPlayers); //append sorted last player
+                    unorderedPlayers = deleteFromEnd(unorderedPlayers); //remove player from end of
+
+                    while(!unique){ //repeat until two ditinct values are rolled
+                        App.gameLog.clearMessages();
+                        App.gameLog.appendMessage(unorderedPlayers[0].getName() + " and " + unorderedPlayers[1]. getName() + " must re-roll"); // output which players need to re oll
+                        App.gameLog.appendMessage("Enter any key to continue...");
+                        ans = input.next();
+
+                        unorderedPlayers[0].latestDiceRoll = rollDice(); //roll dice for 1 player
+                        diceRoll = unorderedPlayers[0].latestDiceRoll;
+
+                        //show dice output in GUI
+                        App.gameLog.clearMessages();
+                        App.gameLog.appendMessage(unorderedPlayers[0].getName() + " rolled " + diceRoll);
+                        App.dice.setDiceFace(diceRoll);
+
+                        App.gameLog.appendMessage("Enter any key to continue...");
+                        ans = input.next();
+
+                        //roll dice for 2 player
+                        unorderedPlayers[1].latestDiceRoll = rollDice();
+                        diceRoll = unorderedPlayers[1].latestDiceRoll;
+
+                        //output dice reults
+                        App.gameLog.clearMessages();
+                        App.gameLog.appendMessage(unorderedPlayers[1].getName() + " rolled " + diceRoll);
+                        App.dice.setDiceFace(diceRoll);
+
+                        App.gameLog.appendMessage("Enter any key to continue...");
+                        ans = input.next();
+
+                        if(unorderedPlayers[0].latestDiceRoll != unorderedPlayers[1].latestDiceRoll){
+                            unique = true; //if their dice out comes are uniqe, they can be sorted, thus both loos can be broken
+                        }
+
+                    }
+                    //exit loop and order players
+                    unorderedPlayers = playerOrderDiceRoll(unorderedPlayers);
+                    //append to ordered players list and delete from other list
+                    orderedPlayers = addToStart(unorderedPlayers[1], orderedPlayers);
+                    unorderedPlayers = deleteFromEnd(unorderedPlayers);
+                    orderedPlayers = addToStart(unorderedPlayers[0], orderedPlayers);
+
+                } else if (r1 == r2) { //if last two are equal
+
+                    orderedPlayers = addToEnd(unorderedPlayers[0], orderedPlayers); //append sorted 1st player
+                    unorderedPlayers = deleteFromStart(unorderedPlayers); //remove player from start
+
+                    while(!unique){ //repeat until two ditinct values are rolled
+                        App.gameLog.clearMessages();
+                        App.gameLog.appendMessage(unorderedPlayers[0].getName() + " and " + unorderedPlayers[1]. getName() + " must re-roll"); // output which players need to re oll
+                        App.gameLog.appendMessage("Enter any key to continue...");
+                        ans = input.next();
+
+                        unorderedPlayers[0].latestDiceRoll = rollDice(); //roll dice for 1 player
+                        diceRoll = unorderedPlayers[0].latestDiceRoll;
+
+                        //show dice output in GUI
+                        App.gameLog.clearMessages();
+                        App.gameLog.appendMessage(unorderedPlayers[0].getName() + " rolled " + diceRoll);
+                        App.dice.setDiceFace(diceRoll);
+
+                        App.gameLog.appendMessage("Enter any key to continue...");
+                        ans = input.next();
+
+                        //roll dice for 2 player
+                        unorderedPlayers[1].latestDiceRoll = rollDice();
+                        diceRoll = unorderedPlayers[1].latestDiceRoll;
+
+                        //output dice reults
+                        App.gameLog.clearMessages();
+                        App.gameLog.appendMessage(unorderedPlayers[1].getName() + " rolled " + diceRoll);
+                        App.dice.setDiceFace(diceRoll);
+
+                        App.gameLog.appendMessage("Enter any key to continue...");
+                        ans = input.next();
+
+                        if(unorderedPlayers[0].latestDiceRoll != unorderedPlayers[1].latestDiceRoll){
+                            unique = true; //if their dice out comes are uniqe, they can be sorted, thus both loos can be broken
+                        }
+
+                    }
+                    //exit loop and order players
+                    unorderedPlayers = playerOrderDiceRoll(unorderedPlayers);
+                    //append to ordered players list and delete from other list
+                    orderedPlayers = addToEnd(unorderedPlayers[0], orderedPlayers);
+                    unorderedPlayers = deleteFromStart(unorderedPlayers);
+                    orderedPlayers = addToEnd(unorderedPlayers[0], orderedPlayers);
                 }
 
-                // Re-sort after re-rolling
-                playerOrder(unorderedPlayers);
+                // re-sort after re-rolling - for unqie case of 3 
+                playerOrderDiceRoll(unorderedPlayers);
             }
-        } else {
-            unique = true; // Defensive: for future use with fewer players
-        }
+        } 
     }
 
-    // Step 3: Build orderedPlayers array using addToEnd + deleteFromStart
-    Player[] orderedPlayers = new Player[0];
-    while (unorderedPlayers.length > 0) {
-        orderedPlayers = addToEnd(unorderedPlayers[0], orderedPlayers);
-        unorderedPlayers = deleteFromStart(1, unorderedPlayers);
+    
+    App.gameLog.clearMessages();
+    App.gameLog.appendMessage("Order of Players:");
+
+    //iterate thorugh orderd player's list to display final order for players
+    System.out.println(orderedPlayers.length + " = orderplayers length");
+    for(int i = 0; i < orderedPlayers.length; i++){
+        App.gameLog.appendMessage("\n"+ (i+1) + ". " + orderedPlayers[i].getName());
     }
 
+    App.gameLog.appendMessage("Enter any key to continue...");
+    ans = input.next();
     return orderedPlayers;
 }
 
-//determine player order
-public static Player[] playerOrder(Player[] list) {
+// this method recives an array of players
+//it sorts the players in descending order based on the value of their latest dice roll
+//the method returns the ordered array
+public static Player[] playerOrderDiceRoll(Player[] list) {
     Player temp;
     for (int i = 0; i < list.length - 1; i++) {
         for (int j = 0; j < list.length - 1 - i; j++) {
@@ -316,12 +475,22 @@ public static Player[] playerOrder(Player[] list) {
 }
 
 
-//this method receives a list and and the number. It deletes the given number of nodes from the beginning of the list
-public static Player[] deleteFromStart(int x, Player[] list) {
-    Player[] temp = new Player[list.length - x];
+//this method receives a list and and the number. It deletes the given number of nodes from the beginning of the list, create one for delete from end and adddtoStart
+public static Player[] deleteFromStart(Player[] list) {
+    Player[] temp = new Player[list.length - 1];
 
     for (int i = 0; i < temp.length; i++) {
-        temp[i] = list[i + x];
+        temp[i] = list[i + 1];
+    }
+
+    return temp;
+}
+
+public static Player[] deleteFromEnd(Player[] list) {
+    Player[] temp = new Player[list.length - 1];
+
+    for (int i = 0; i < temp.length; i++) {
+        temp[i] = list[i];
     }
 
     return temp;
@@ -338,13 +507,28 @@ public static Player[] addToEnd(Player player, Player[] list) {
 
     return temp;
 }
-//roll dice
+
+public static Player[] addToStart(Player player, Player[] list) {
+    Player[] temp = new Player[list.length + 1];
+
+    for (int i = 0; i < list.length; i++) {
+        temp[i+1] = list[i];
+    }
+
+    temp[0] = player;
+
+    return temp;
+}
+//this method recives no parameters
+//it simulates a dice roll by generating a random number from 1-6
+//it returns the number generated
 public static int rollDice(){
-    Random rand = new Random();
-    int numberRolled = rand.nextInt(6) + 1;
-    return numberRolled;
+    Random rand = new Random(); //random var
+    int numberRolled = rand.nextInt(6) + 1; //generate random num
+    return numberRolled;//return random num
 }
 
+//fix up player sorting and then get rid of this
 public static void display(int dice){
     System.out.println("Dice rolled..."+dice);
 }

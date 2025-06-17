@@ -11,7 +11,7 @@ public class playerInfoPanel extends JPanel {
 
     public playerInfoPanel() {
         setLayout(new GridLayout(4, 1));
-        setPreferredSize(new Dimension(300, 400));
+        setPreferredSize(new Dimension(200, 370));
 
         nameLabel = new JLabel("Name: ");
         cashLabel = new JLabel("Cash: ");

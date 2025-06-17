@@ -3,6 +3,7 @@ package backend;
 import java.util.Random;
 public class Chance extends BoardTile{
 	private static String instruction;
+	public static boolean isMovement;
 	
 	public Chance(int position, int x, int y) {
         super(position, x, y);
@@ -13,6 +14,7 @@ public class Chance extends BoardTile{
 		
 		//Type #1: Add/Deduct Cash
 		if(code==1) {
+			isMovement = false;
 			instruction = "";
 			double amount;
 			do {
@@ -28,12 +30,14 @@ public class Chance extends BoardTile{
 		
 		//Type #2:  Send to Jail 
 		else if(code==1002) {
+			isMovement = false;
 			Jail.sendJail(player);
 			instruction="GO TO JAIL!";
 		}
 		
 		//Type #3: Alter Position
 		else{
+			isMovement=true;
 			int posToMove=rand.nextInt(5)+5; //get the number of spaces to move
 
             instruction="Move up "+posToMove+" positions!";

@@ -48,7 +48,7 @@ public class BoardData{
         //Generic
         tiles[6] = new Generic[3];
         tiles[6][0] = new Generic(0, 200, "Go Square", (cellSize*3)/2, (cellSize*29)/2);
-        tiles[6][1] = new Generic(6, 0, "Visiting Jail", (cellSize*3)/2, (cellSize*3)/2);
+        tiles[6][1] = new Generic(6, 0, "Visiting Jail OR In Jail", (cellSize*3)/2, (cellSize*3)/2);
         tiles[6][2] = new Generic(12, 0, "Free Parking", (cellSize*29)/2 ,(cellSize*3)/2);
         //chance cards
         tiles[7] = new Chance[4];

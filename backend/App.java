@@ -7,6 +7,7 @@ import java.awt.*;
 public class App {
     public static Monopoly monopolyGame;
     public static playerInfoPanel playerDisplay;
+    public static propertyInfoPanel propertyDisplay;
     public static  outPutPanel gameLog;
     public static Dice dice;
 
@@ -44,16 +45,32 @@ public class App {
         sidePanel.add(Box.createRigidArea(new Dimension(0, 20))); // 20px vertical space
 
         playerDisplay = new playerInfoPanel(); //create the playerdisplay card
+        propertyDisplay = new propertyInfoPanel(); //create prerty display
 
         //wrap the player info display in another panel to prvent the height form expanding
         JPanel playerInfoContainer = new JPanel();
         playerInfoContainer.setLayout(new BorderLayout());
         playerInfoContainer.setBorder(BorderFactory.createTitledBorder("Player Info")); //border title
-        playerInfoContainer.setMaximumSize(new Dimension(300, 400));
-        JScrollPane scrollPane = new JScrollPane(playerDisplay, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        playerInfoContainer.add(scrollPane, BorderLayout.CENTER); //center inside the wrap
+        playerInfoContainer.setMaximumSize(new Dimension(200, 370));
+        JScrollPane scrollPanePlayer = new JScrollPane(playerDisplay, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        playerInfoContainer.add(scrollPanePlayer, BorderLayout.CENTER); //center inside the wrap
+
+        JPanel propertyInfoContainer = new JPanel();
+        propertyInfoContainer.setLayout(new BorderLayout());
+        propertyInfoContainer.setBorder(BorderFactory.createTitledBorder("Tile Info")); //border title
+        propertyInfoContainer.setMaximumSize(new Dimension(200, 370));
+        JScrollPane scrollPaneProp = new JScrollPane(propertyDisplay, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        propertyInfoContainer.add(scrollPaneProp, BorderLayout.CENTER); //center inside the wrap
         
-        sidePanel.add(playerInfoContainer);//add player info container to the side panel
+        //Wrap both displays in a panel to horizontally algin the
+        JPanel infoContainer = new JPanel();
+        infoContainer.setLayout(new BoxLayout(infoContainer, BoxLayout.X_AXIS));
+        infoContainer.setBorder(null); //no border title
+        infoContainer.setMaximumSize(new Dimension(400, 370));
+        infoContainer.add(playerInfoContainer); //add player info 
+        infoContainer.add(propertyInfoContainer); //add proeprty info
+
+        sidePanel.add(infoContainer);//add info panel to the side bar
         sidePanel.add(Box.createRigidArea(new Dimension(0, 20))); // 20px vertical space
 
         gameLog = new outPutPanel(); //create output panel

@@ -8,8 +8,8 @@ public class outPutPanel extends JPanel {
 
     public outPutPanel() {
         setLayout(new BorderLayout()); //set layout
-        setPreferredSize(new Dimension(300, 150));
-        setMaximumSize(new Dimension(300, 150));
+        setPreferredSize(new Dimension(400, 200));
+        setMaximumSize(new Dimension(400, 200));
         setBorder(BorderFactory.createTitledBorder("Game Log"));
 
         outputArea = new JTextArea(); //initalize box
